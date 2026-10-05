@@ -1,0 +1,453 @@
+<!DOCTYPE html>
+<html lang="es" class="intro-active">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Feliz cumpleaños</title>
+<link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,400;0,600;1,400;1,600&family=Caveat:wght@500&display=swap" rel="stylesheet">
+<style>
+:root{
+  --plum:#2a1426; --wine:#8e2a4f; --rose:#f2b8c6; --blush:#ffe6e6; --paper:#fff9f8; --gold:#d9b26f;
+  --serif:'Cormorant Garamond',Georgia,serif; --hand:'Caveat','Segoe Script',cursive;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{scroll-behavior:smooth}
+html.intro-active{overflow:hidden}
+body{font-family:var(--serif);color:var(--plum);background:linear-gradient(180deg,var(--blush),#ffd3da 45%,var(--blush));font-size:1.25rem;line-height:1.6}
+
+/* ---------- INTRO: SOBRE Y CARTA ---------- */
+.intro{--w:min(82vw,340px,56vh);position:fixed;inset:0;z-index:10;display:grid;place-items:center;overflow:hidden;
+  background:radial-gradient(circle at 50% 40%,#5a2447,var(--plum) 70%);transition:opacity .9s ease}
+.intro.is-leaving{opacity:0;pointer-events:none}
+.intro.is-done{display:none}
+
+.bob{animation:float 3.6s ease-in-out infinite;transition:translate 1s cubic-bezier(.4,0,.2,1) .5s}
+@keyframes float{50%{transform:translateY(-8px)}}
+.intro.is-opening .bob{animation-play-state:paused;translate:0 calc(var(--w)*.3)}
+
+.envelope{position:relative;display:block;width:var(--w);height:calc(var(--w)/1.5);padding:0;border:0;background:none;
+  font:inherit;color:inherit;cursor:pointer;perspective:1000px;-webkit-tap-highlight-color:transparent}
+.envelope:focus-visible{outline:3px solid var(--gold);outline-offset:10px}
+.intro.is-opening .envelope{cursor:default}
+
+.env-back{position:absolute;inset:0;border-radius:6px;background:#7a2444;box-shadow:0 26px 50px rgba(0,0,0,.45)}
+.env-front{position:absolute;inset:0;z-index:3;display:block;width:100%;height:100%;pointer-events:none}
+
+/* Solapa en 3D: gira hacia atrás y muestra su cara interior */
+.flap{position:absolute;left:0;right:0;top:0;height:58%;z-index:4;transform-style:preserve-3d;transform-origin:50% 0;
+  transition:transform .85s cubic-bezier(.5,0,.25,1) .15s,z-index 0s .58s}
+.face{position:absolute;left:0;top:0;display:block;width:100%;height:100%;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.face.in{transform:rotateY(180deg)}
+.intro.is-opening .flap{transform:rotateX(-180deg);z-index:1}
+
+.seal{position:absolute;left:50%;top:56%;z-index:5;width:2.6rem;height:2.6rem;margin:-1.3rem 0 0 -1.3rem;border-radius:50%;
+  display:grid;place-items:center;font-size:1.3rem;color:var(--wine);
+  background:radial-gradient(circle at 35% 30%,#ecd0a0,var(--gold) 55%,#a8803f);box-shadow:0 3px 8px rgba(0,0,0,.35);
+  transition:opacity .35s ease,transform .45s cubic-bezier(.4,0,.2,1)}
+.intro.is-opening .seal{opacity:0;transform:scale(1.35)}
+
+/* Carta: sale por completo del sobre y luego pasa al frente */
+.letter{position:absolute;left:7%;right:7%;top:6%;bottom:6%;z-index:2;border-radius:3px;background:var(--paper);
+  box-shadow:0 3px 12px rgba(0,0,0,.25);transform:var(--t,none);transition:transform 1.15s cubic-bezier(.22,1,.36,1) .7s}
+.intro.is-opening .letter{--t:translateY(-110%)}
+.letter-in{position:absolute;inset:8px;display:grid;place-content:center;gap:.2rem;text-align:center;
+  border:1px solid rgba(142,42,79,.22);transition:opacity .35s ease}
+.letter-in em{font-family:var(--hand);font-style:normal;font-size:clamp(1.6rem,6vw,2.1rem);line-height:1;color:var(--wine)}
+.letter-in span{font-style:italic;font-size:clamp(1rem,3.6vw,1.2rem);color:var(--plum)}
+.letter-in i{font-style:normal;color:var(--wine)}
+
+/* Fase 2: el sobre se desvanece y la carta crece hasta llenar la pantalla */
+.intro.is-zooming .env-back,.intro.is-zooming .env-front,.intro.is-zooming .flap,.intro.is-zooming .seal{
+  opacity:0;transition:opacity .6s ease}
+.intro.is-zooming .letter{z-index:6;transition:transform 1.2s cubic-bezier(.7,0,.25,1)}
+.intro.is-zooming .letter-in{opacity:0}
+
+.hint{position:absolute;bottom:9%;font-family:var(--hand);font-size:1.5rem;color:var(--rose);transition:opacity .4s}
+.intro.is-opening .hint{opacity:0}
+
+/* Bloqueo: cuenta regresiva hasta la fecha de apertura */
+.intro.is-locked .bob{translate:0 -7vh}
+.intro.is-locked .envelope{cursor:not-allowed}
+.intro.is-locked .hint{opacity:0}
+.intro .seal{transition:opacity .35s ease,transform .45s cubic-bezier(.4,0,.2,1),filter .6s ease}
+.intro.is-locked .seal{filter:saturate(.5) brightness(.85)}
+.intro:not(.is-locked):not(.is-opening) .seal{animation:glow 2.2s ease-out infinite}
+@keyframes glow{
+  0%,100%{box-shadow:0 3px 8px rgba(0,0,0,.35),0 0 0 0 rgba(217,178,111,.55)}
+  60%{box-shadow:0 3px 8px rgba(0,0,0,.35),0 0 0 14px rgba(217,178,111,0)}}
+.envelope.is-denied{animation:deny .5s cubic-bezier(.36,.07,.19,.97)}
+@keyframes deny{20%,60%{transform:translateX(-7px)}40%,80%{transform:translateX(7px)}}
+
+.lock{position:absolute;left:50%;bottom:max(4vh,18px);translate:-50% 0;width:min(88vw,400px);text-align:center;color:var(--blush);
+  transition:opacity .6s ease,visibility 0s}
+.intro:not(.is-locked) .lock,.intro.is-opening .lock{opacity:0;visibility:hidden;transition:opacity .6s ease,visibility 0s .6s}
+.lock-title{display:flex;gap:.5rem;justify-content:center;align-items:center;margin-bottom:.8rem;
+  font-style:italic;font-size:clamp(1.05rem,4vw,1.25rem);line-height:1.25;color:var(--rose)}
+.lock-title svg{flex:none;width:1.15em;height:1.15em}
+.lock-title b{font-weight:600;color:var(--blush)}
+.count{display:grid;grid-template-columns:repeat(4,1fr);gap:.6rem}
+.count div{padding:.6rem .2rem .5rem;border:1px solid rgba(242,184,198,.28);border-radius:10px;background:rgba(255,255,255,.05)}
+.count b{display:block;font-weight:600;font-size:clamp(1.7rem,7vw,2.3rem);line-height:1;font-variant-numeric:tabular-nums;color:var(--blush)}
+.count small{display:block;margin-top:.3rem;font-size:.7rem;letter-spacing:.14em;text-transform:uppercase;color:var(--rose);opacity:.85}
+.lock-note{margin-top:.8rem;min-height:1.5em;font-family:var(--hand);font-size:1.4rem;line-height:1.1;color:var(--gold)}
+@media (max-height:560px){
+  .intro.is-locked .bob{translate:0 -12vh}
+  .lock-title{margin-bottom:.4rem}.count small,.lock-note{display:none}
+  .count div{padding:.4rem .2rem}}
+
+/* ---------- CORAZONES FLOTANTES ---------- */
+.hearts{position:fixed;inset:0;pointer-events:none;z-index:1;overflow:hidden}
+.hearts span{position:absolute;bottom:-3rem;color:var(--wine);opacity:.25;animation:rise linear infinite}
+.hearts span:nth-child(1){left:8%;font-size:1.4rem;animation-duration:14s}
+.hearts span:nth-child(2){left:24%;font-size:2rem;animation-duration:19s;animation-delay:-6s}
+.hearts span:nth-child(3){left:47%;font-size:1.1rem;animation-duration:16s;animation-delay:-3s}
+.hearts span:nth-child(4){left:66%;font-size:1.8rem;animation-duration:21s;animation-delay:-11s}
+.hearts span:nth-child(5){left:84%;font-size:1.3rem;animation-duration:17s;animation-delay:-8s}
+@keyframes rise{to{transform:translateY(-115vh) rotate(25deg)}}
+
+/* ---------- PÁGINA ---------- */
+main{position:relative;z-index:2}
+.hero{min-height:100svh;display:grid;place-content:center;text-align:center;padding:2rem}
+.hero small{font-family:var(--hand);font-size:1.8rem;color:var(--wine)}
+.hero h1{font-weight:600;font-style:italic;font-size:clamp(3.2rem,13vw,9rem);line-height:.95;color:var(--wine);margin:.4rem 0}
+.hero p{max-width:30ch;margin:1rem auto 0}
+.scroll{margin-top:2.5rem;font-size:2rem;color:var(--wine);animation:bob 1.8s ease-in-out infinite}
+@keyframes bob{50%{transform:translateY(8px)}}
+.hero>*{transition:opacity 1.1s ease,translate 1.1s cubic-bezier(.2,.8,.2,1)}
+.hero>*:nth-child(2){transition-delay:.15s}
+.hero>*:nth-child(3){transition-delay:.3s}
+.hero>*:nth-child(4){transition-delay:.45s}
+html.intro-active:not(.reveal) .hero>*{opacity:0;translate:0 22px}
+
+.collage{display:grid;grid-template-columns:repeat(6,1fr);grid-auto-rows:92px;gap:1.1rem;
+  max-width:1000px;margin:0 auto;padding:3rem 1.2rem}
+.item{grid-column:var(--c);grid-row:var(--r);transform:rotate(var(--rot,0deg))}
+
+.photo{background:var(--paper);padding:.7rem .7rem .5rem;display:flex;flex-direction:column;
+  box-shadow:0 12px 30px rgba(142,42,79,.22)}
+.ph{position:relative;flex:1;min-height:0;overflow:hidden;
+  background:linear-gradient(135deg,var(--rose),#ffd9c7 60%,var(--gold))}
+.ph::after{content:"Tu foto aquí ♡";position:absolute;inset:0;display:grid;place-items:center;
+  font-family:var(--hand);font-size:1.5rem;color:var(--wine)}
+.ph img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;z-index:1}
+.photo figcaption{font-family:var(--hand);font-size:1.45rem;text-align:center;color:var(--wine);padding-top:.3rem}
+
+.text{align-self:center}
+.text h2{font-style:italic;font-weight:600;font-size:clamp(1.8rem,4vw,2.6rem);line-height:1.1;color:var(--wine);margin-bottom:.5rem}
+.text.card{background:var(--plum);color:var(--blush);padding:1.5rem;align-self:stretch;display:grid;align-content:center}
+.text.card h2{color:var(--rose)}
+.quote{font-family:var(--hand);font-size:clamp(1.8rem,4.5vw,2.8rem);color:var(--wine);text-align:center;line-height:1.15}
+
+.band{max-width:760px;margin:2rem auto;padding:4rem 1.5rem;text-align:center}
+.band .quote{margin-bottom:1rem}
+
+.reasons{list-style:none;max-width:560px;margin:0 auto;padding:1rem 1.5rem 3rem;text-align:left}
+.reasons li{padding:.9rem 0;border-bottom:1px dashed var(--wine)}
+.reasons li::before{content:"♥ ";color:var(--wine)}
+
+.finale{min-height:90svh;display:grid;place-content:center;text-align:center;padding:3rem 1.5rem;
+  background:radial-gradient(circle at 50% 30%,#5a2447,var(--plum) 75%);color:var(--blush)}
+.finale h2{font-style:italic;font-weight:600;font-size:clamp(2.6rem,9vw,6rem);line-height:1;color:var(--rose)}
+.finale p{max-width:34ch;margin:1.2rem auto}
+.sign{font-family:var(--hand);font-size:2.2rem;color:var(--gold)}
+.sticker{
+    position:absolute;
+    left:var(--x);
+    top:var(--y);
+    width:var(--size);
+    transform:rotate(var(--rot));
+    z-index:5;
+    pointer-events:none;
+}
+
+.sticker img{
+    display:block;
+    width:100%;
+    height:auto;
+}
+/* Aparición suave al hacer scroll (solo si el navegador lo soporta) */
+@supports (animation-timeline:view()){
+  .item,.band,.reasons li{animation:in both;animation-timeline:view();animation-range:entry 0% entry 55%}
+  @keyframes in{from{opacity:0;translate:0 40px}}
+}
+
+@media (max-width:700px){
+  .collage{grid-template-columns:1fr;grid-auto-rows:auto}
+  .item{grid-column:1;grid-row:auto}
+  .photo{min-height:340px}
+}
+
+@media (prefers-reduced-motion:reduce){
+  *{animation:none!important;transition-duration:.01s!important;transition-delay:0s!important}
+}
+</style>
+<noscript><style>.intro{display:none}html.intro-active{overflow:auto}html.intro-active .hero>*{opacity:1!important;translate:none!important}</style></noscript>
+</head>
+<body>
+
+<!-- ===== SOBRE ===== -->
+<div class="intro is-locked" id="intro">
+  <div class="bob">
+    <button class="envelope" id="envelope" type="button" aria-label="Abrir la carta" aria-disabled="true">
+      <span class="env-back"></span>
+      <span class="letter" id="letter"><span class="letter-in"><em>Para ti</em><span>con todo mi cariño</span><i>♥</i></span></span>
+      <svg class="env-front" viewBox="0 0 300 200" preserveAspectRatio="none" aria-hidden="true">
+        <defs><linearGradient id="gF" x1="0" y1="0" x2="1" y2="1"><stop offset="0" stop-color="#a83560"/><stop offset="1" stop-color="#8e2a4f"/></linearGradient></defs>
+        <path d="M0 0L150 112L300 0V194a6 6 0 0 1-6 6H6a6 6 0 0 1-6-6Z" fill="url(#gF)"/>
+        <path d="M0 0L150 112L0 200Z" fill="#000" opacity=".07"/>
+        <path d="M300 0L150 112L300 200Z" fill="#000" opacity=".07"/>
+        <path d="M0 0L150 112L300 0" fill="none" stroke="#fff" stroke-opacity=".16" stroke-width="1.5"/>
+      </svg>
+      <span class="flap">
+        <svg class="face out" viewBox="0 0 300 116" preserveAspectRatio="none" aria-hidden="true">
+          <defs><linearGradient id="gO" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#c24a78"/><stop offset="1" stop-color="#a83560"/></linearGradient></defs>
+          <path d="M0 0H300L150 116Z" fill="url(#gO)"/>
+        </svg>
+        <svg class="face in" viewBox="0 0 300 116" preserveAspectRatio="none" aria-hidden="true">
+          <defs><linearGradient id="gI" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="#6c1d3c"/><stop offset="1" stop-color="#9a3158"/></linearGradient></defs>
+          <path d="M0 0H300L150 116Z" fill="url(#gI)"/>
+        </svg>
+      </span>
+      <span class="seal">♥</span>
+    </button>
+  </div>
+  <p class="hint">toca el sobre para abrirlo</p>
+
+  <!-- Aviso de bloqueo con cuenta regresiva (se oculta solo cuando llega la fecha) -->
+  <div class="lock" id="lock" role="timer" aria-label="Tiempo restante para abrir la carta">
+    <p class="lock-title">
+      <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><rect x="5" y="11" width="14" height="9" rx="2"/><path d="M8 11V8a4 4 0 0 1 8 0v3"/></svg>
+      <span>Esta carta se abre el <b id="lock-when">miércoles 7 de octubre</b></span>
+    </p>
+    <div class="count">
+      <div><b id="cd-d">00</b><small>días</small></div>
+      <div><b id="cd-h">00</b><small>horas</small></div>
+      <div><b id="cd-m">00</b><small>min</small></div>
+      <div><b id="cd-s">00</b><small>seg</small></div>
+    </div>
+    <p class="lock-note" id="lock-note" aria-live="polite">Pronto, muy pronto ♥</p>
+  </div>
+</div>
+
+<!-- ===== BORRAR ANTES DE PUBLICAR · ACCESO DE PRUEBA (1/3: HTML) ===== -->
+<button type="button" id="dev-enter" class="dev-enter">Entrar (modo prueba)</button>
+<!-- ===== FIN ACCESO DE PRUEBA (1/3) ===== -->
+
+<div class="hearts" aria-hidden="true"><span>♥</span><span>♥</span><span>♥</span><span>♥</span><span>♥</span></div>
+
+<!-- ===== PÁGINA ===== -->
+<main>
+  <section class="hero">
+    <small>hoy el mundo celebra que existes</small>
+    <h1>Feliz cumpleaños,<br>[Nombre]</h1>
+    <p>Hice este rinconcito para ti. Baja despacio, hay cosas que quiero contarte.</p>
+    <div class="scroll" aria-hidden="true">↓</div>
+  </section>
+
+  <!-- COLLAGE 1 · Cambia las fotos: dentro de cada <div class="ph"> pega <img src="foto1.jpg" alt="..."> -->
+  <section class="collage">
+    <figure class="item photo" style="--c:1/4;--r:1/5;--rot:-2deg">
+      <div class="ph"><!-- <img src="foto1.jpg" alt=""> --></div>
+      <figcaption>el día que nos conocimos</figcaption>
+    </figure>
+    <div class="item text" style="--c:4/7;--r:1/3">
+      <h2>Contigo todo se siente más ligero</h2>
+      <p>Desde que apareciste, mis días tienen un color distinto. Gracias por tu risa y por cómo haces especial lo simple.</p>
+    </div>
+    <figure class="item photo" style="--c:4/7;--r:3/6;--rot:2.5deg">
+      <div class="ph"><!-- <img src="foto2.jpg" alt=""> --></div>
+      <figcaption>mi plan favorito</figcaption>
+    </figure>
+    <div class="item text card" style="--c:1/4;--r:5/7;--rot:-1.5deg">
+      <h2>Lo que más me gusta</h2>
+      <p>Tu sonrisa cuando crees que nadie te mira.</p>
+    </div>
+    <div class="sticker" style="--x: 5%; --y: 20%; --size: 120px; --rot: -12deg;">
+      <img src="demogorgo.png" alt="">
+    </div>
+        <div class="sticker" style="--x: 5%; --y: 80%; --size: 120px; --rot: -12deg;">
+      <img src="soda.png" alt="">
+    </div>
+    <div class="sticker" style="--x: 80%; --y: 80%; --size: 120px; --rot: -12deg;">
+      <img src="queen.png" alt="">
+    </div>
+    <div class="sticker" style="--x: 85%; --y: 40%; --size: 120px; --rot: 12deg;">
+      <img src="tajin.png" alt="">
+    </div>
+    <div class="sticker" style="--x: 5%; --y: 60%; --size: 200px; --rot: -12deg;">
+      <img src="filtro.png" alt="">
+    </div>
+  </section>
+
+  <section class="band">
+    <p class="quote">"Cumplir años contigo cerca es la mejor forma de empezar otro año."</p>
+    <p>Que este nuevo año te devuelva todo el cariño que tú repartes sin darte cuenta.</p>
+  </section>
+
+  <!-- COLLAGE 2 -->
+  <section class="collage">
+    <div class="item text card" style="--c:1/3;--r:1/3;--rot:1.5deg">
+      <h2>Mis deseos para ti</h2>
+      <p>Salud, calma, risas largas y sueños cumplidos.</p>
+    </div>
+    <figure class="item photo" style="--c:3/7;--r:1/5;--rot:2deg">
+      <div class="ph"><!-- <img src="foto3.jpg" alt=""> --></div>
+      <figcaption>tú siendo tú</figcaption>
+    </figure>
+    <figure class="item photo" style="--c:1/3;--r:3/6;--rot:-2.5deg">
+      <div class="ph"><!-- <img src="foto4.jpg" alt=""> --></div>
+      <figcaption>otro recuerdo bonito</figcaption>
+    </figure>
+    <div class="item text" style="--c:3/7;--r:5/7">
+      <h2>Y todavía falta mucho por vivir</h2>
+      <p>Me emociona imaginar lo que viene, y más si es a tu lado.</p>
+    </div>
+  </section>
+
+  <ul class="reasons">
+    <li>Tu manera de escuchar con toda la atención.</li>
+    <li>Cómo te ríes de tus propios chistes.</li>
+    <li>La paz que siento cuando hablamos.</li>
+    <li>Todo lo que me hace pensar en ti.</li>
+  </ul>
+
+  <section class="finale">
+    <h2>Feliz cumpleaños, [Nombre]</h2>
+    <p>Gracias por dejarme ser parte de tu historia. Que hoy te abracen como te mereces.</p>
+    <span class="sign">con cariño, [Tu nombre] ♥</span>
+  </section>
+</main>
+
+<script>
+(() => {
+  const root = document.documentElement;
+  const intro = document.getElementById('intro');
+  const envelope = document.getElementById('envelope');
+  const letter = document.getElementById('letter');
+  const main = document.querySelector('main');
+  const reduce = matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+  main.inert = true;
+
+  // Espera el fin de una transición; el timeout evita que la secuencia se quede trabada
+  const after = (el, prop, fn, ms) => {
+    let done = false;
+    const run = () => {
+      if (done) return;
+      done = true;
+      el.removeEventListener('transitionend', onEnd);
+      fn();
+    };
+    const onEnd = e => { if (e.target === el && e.propertyName === prop) run(); };
+    el.addEventListener('transitionend', onEnd);
+    setTimeout(run, ms);
+  };
+
+  const finish = () => {
+    intro.classList.add('is-done');
+    root.classList.remove('intro-active');
+    main.inert = false;
+  };
+
+  const leave = () => {
+    root.classList.add('reveal');
+    intro.classList.add('is-leaving');
+    after(intro, 'opacity', finish, 1500);
+  };
+
+  // La carta crece desde donde está hasta cubrir toda la pantalla
+  const zoom = () => {
+    const r = letter.getBoundingClientRect();
+    const m = new DOMMatrix(getComputedStyle(letter).transform);
+    const k = Math.max(innerWidth / r.width, innerHeight / r.height) * 1.08;
+    const tx = m.m41 + innerWidth / 2 - (r.left + r.width / 2);
+    const ty = m.m42 + innerHeight / 2 - (r.top + r.height / 2);
+    letter.style.setProperty('--t', `translate(${tx}px,${ty}px) scale(${k})`);
+    intro.classList.add('is-zooming');
+    setTimeout(leave, 800);
+  };
+
+  // ===== BLOQUEO POR FECHA =====
+  // Momento en que la carta se puede abrir. Hora de Colombia (UTC-5); cámbialo aquí si hace falta.
+  const UNLOCK_AT = new Date('2026-10-07T00:00:00-05:00');
+
+  const note = document.getElementById('lock-note');
+  const cd = ['d', 'h', 'm', 's'].map(k => document.getElementById('cd-' + k));
+  const pad = n => String(n).padStart(2, '0');
+  const isLocked = () => Date.now() < UNLOCK_AT.getTime();
+  const NOTE_DEFAULT = note.textContent;
+  let timer;
+
+  const parts = new Intl.DateTimeFormat('es', { weekday: 'long', day: 'numeric', month: 'long', timeZone: 'America/Bogota' })
+    .formatToParts(UNLOCK_AT);
+  const part = t => parts.find(p => p.type === t).value;
+  const whenText = `${part('weekday')} ${part('day')} de ${part('month')}`;
+  document.getElementById('lock-when').textContent = whenText;
+  envelope.setAttribute('aria-label', `Carta bloqueada hasta el ${whenText}`);
+
+  const unlock = () => {
+    clearInterval(timer);
+    intro.classList.remove('is-locked');
+    envelope.removeAttribute('aria-disabled');
+    envelope.setAttribute('aria-label', 'Abrir la carta');
+  };
+
+  const tick = () => {
+    const ms = UNLOCK_AT.getTime() - Date.now();
+    if (ms <= 0) return unlock();
+    const t = Math.floor(ms / 1000);
+    [Math.floor(t / 86400), Math.floor(t % 86400 / 3600), Math.floor(t % 3600 / 60), t % 60]
+      .forEach((v, i) => { cd[i].textContent = pad(v); });
+  };
+
+  // Mientras falte tiempo, el clic solo sacude el sobre y muestra un mensaje
+  let noteTimer;
+  const deny = () => {
+    envelope.classList.remove('is-denied');
+    void envelope.offsetWidth;
+    envelope.classList.add('is-denied');
+    note.textContent = 'Todavía no… ten paciencia ♥';
+    clearTimeout(noteTimer);
+    noteTimer = setTimeout(() => { note.textContent = NOTE_DEFAULT; }, 2600);
+  };
+  envelope.addEventListener('animationend', () => envelope.classList.remove('is-denied'));
+
+  // ===== APERTURA =====
+  let started = false;
+  const openLetter = () => {
+    if (started) return;
+    started = true;
+    unlock();
+    if (reduce) {
+      root.classList.add('reveal');
+      intro.classList.add('is-leaving');
+      after(intro, 'opacity', finish, 400);
+      return;
+    }
+    intro.classList.add('is-opening');
+    after(letter, 'transform', zoom, 2400);
+  };
+
+  envelope.addEventListener('click', () => (isLocked() ? deny() : openLetter()));
+  document.addEventListener('letter:open', openLetter);   // gancho para abrir por código
+
+  if (isLocked()) {
+    tick();
+    timer = setInterval(tick, 1000);
+    document.addEventListener('visibilitychange', tick);
+  } else {
+    unlock();
+  }
+})();
+</script>
+
+<!-- ===== BORRAR ANTES DE PUBLICAR · ACCESO DE PRUEBA (3/3: JS) ===== -->
+<script>
+document.getElementById('dev-enter').addEventListener('click', e => {
+  e.currentTarget.hidden = true;
+  document.dispatchEvent(new Event('letter:open'));
+});
+</script>
+<!-- ===== FIN ACCESO DE PRUEBA (3/3) ===== -->
+</body>
+</html>
